@@ -219,19 +219,8 @@ Capabilities:
 
 * Multi-machine parallel installation
 * Progress dashboard
-* Rollback mechanism
 * Plugin architecture
 * Configuration validation
-* Detailed installation reports
 
 ---
 
-## Author
-
-Developed for automating software deployment and installation workflows across Windows and Linux environments.
-
----
-
-## License
-
-This project is intended for internal or organizational use. Update the license section according to your project requirements.
