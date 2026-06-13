@@ -1,0 +1,2396 @@
+{
+    "software": {
+        "python": {
+            "linux": {
+                "steps": [
+                    {
+                        "step": "apt_install",
+                        "cmd": "sudo apt-get update",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "apt_install",
+                        "cmd": "sudo apt-get install -y python3 python3-pip python3-venv python3-dev libpq-dev build-essential"
+                    }
+                ]
+            },
+            "windows": {
+                "steps": [
+                    {
+                        "step": "zip_extract",
+                        "relative_zip_path": "third_party_softwares/windows/python.zip",
+                        "extract_to": "third_party_softwares/windows/python"
+                    },
+                    {
+                        "step": "move_folder",
+                        "source": "third_party_softwares/windows/python/python",
+                        "destination": "C:/Program Files/python"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "Start-Process",
+                        "arguments": "-FilePath 'C:\\Program Files\\python\\python-3.10.9-amd64 7.exe' -ArgumentList '/quiet','InstallAllUsers=1','PrependPath=1' -Wait"
+                    },
+                    {
+                        "step": "env_change",
+                        "env_var": "PYTHON_HOME",
+                        "env_path": "C:/Program Files/python"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "if (Test-Path 'C:\\Users\\Administrator\\AppData\\Local\\Programs\\Python\\Python310') {$env:Path += ';C:\\Users\\Administrator\\AppData\\Local\\Programs\\Python\\Python310'; Write-Output 'Python path added to PATH.' } else { Write-Output 'Python not found, skipping environment change.' }"
+                    }
+                ]
+            }
+        },
+        "jdk": {
+            "linux": {
+                "steps": [
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo apt-get update",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo systemctl stop apt-daily.timer apt-daily-upgrade.timer unattended-upgrades.service apt-daily.service apt-daily-upgrade.service",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo systemctl kill --kill-who=all apt-daily.service apt-daily-upgrade.service unattended-upgrades.service",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/lib/apt/lists/lock /var/cache/apt/archives/lock",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo dpkg --configure -a",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo apt-get install openjdk-17-jdk -y"
+                    }
+                ]
+            },
+            "windows": {
+                "steps": [
+                    {
+                        "step": "zip_extract",
+                        "relative_zip_path": "third_party_softwares/windows/jdk-17.zip",
+                        "extract_to": "third_party_softwares/windows/jdk"
+                    },
+                    {
+                        "step": "move_folder",
+                        "source": "third_party_softwares/windows/jdk/jdk-17",
+                        "destination": "C:/Program Files/Java/jdk-17"
+                    },
+                    {
+                        "step": "env_change",
+                        "env_var": "JAVA_HOME",
+                        "env_path": "C:/Program Files/Java/jdk-17"
+                    }
+                ]
+            }
+        },
+        "redis": {
+            "linux": {
+                "steps": [
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo apt-get install -y redis-server"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo systemctl enable redis-server"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/etc/",
+                        "cmd": "sudo chmod -R 666 redis"
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/etc/redis/",
+                        "files": [
+                            "redis.conf"
+                        ],
+                        "line": "bind 127.0.0.1",
+                        "replaced_line": "bind 0.0.0.0"
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/etc/redis/",
+                        "files": [
+                            "redis.conf"
+                        ],
+                        "line": "protected-mode yes",
+                        "replaced_line": "protected-mode no"
+                    }
+                ]
+            },
+            "windows": {
+                "steps": [
+                    {
+                        "step": "zip_extract",
+                        "relative_zip_path": "third_party_softwares/windows/redis.zip",
+                        "extract_to": "third_party_softwares/windows/redis"
+                    },
+                    {
+                        "step": "move_folder",
+                        "source": "third_party_softwares/windows/redis/redis",
+                        "destination": "C:/Softwares/redis"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "if (-not (Get-Service -Name Redis -ErrorAction SilentlyContinue)) { & \"C:\\Softwares\\redis\\redis-server.exe\" --service-install \"C:\\Softwares\\redis\\redis.windows.conf\" }"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "if ((Get-Service -Name Redis -ErrorAction SilentlyContinue).Status -ne 'Running')",
+                        "arguments": "{ Start-Service Redis }"
+                    },
+                    {
+                        "step": "env_change",
+                        "env_var": "REDIS_HOME",
+                        "env_path": "C:/Softwares/redis"
+                    }
+                ]
+            }
+        },
+        "kafka": {
+            "linux": {
+                "steps": [
+                    {
+                        "step": "copy_folder",
+                        "source": "third_party_softwares/linux/kafka",
+                        "destination": "/opt"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo chmod 755 /opt/kafka/bin/*.sh"
+                    }
+                ]
+            },
+            "windows": {
+                "steps": [
+                    {
+                        "step": "zip_extract",
+                        "relative_zip_path": "third_party_softwares/windows/kafka.zip",
+                        "extract_to": "third_party_softwares/windows/kafka"
+                    },
+                    {
+                        "step": "move_folder",
+                        "source": "third_party_softwares/windows/kafka/kafka",
+                        "destination": "C:/Softwares/kafka"
+                    },
+                    {
+                        "step": "env_change",
+                        "env_var": "KAFKA_HOME",
+                        "env_path": "C:/Softwares/kafka"
+                    }
+                ]
+            }
+        },
+        "zookeeper": {
+            "linux": {
+                "steps": [
+                    {
+                        "step": "copy_folder",
+                        "source": "third_party_softwares/linux/zookeeper",
+                        "destination": "/opt"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo chmod 755 /opt/zookeeper/bin/*.sh"
+                    }
+                ]
+            },
+            "windows": {
+                "steps": [
+                    {
+                        "step": "zip_extract",
+                        "relative_zip_path": "third_party_softwares/windows/zookeeper.zip",
+                        "extract_to": "third_party_softwares/windows/zookeeper"
+                    },
+                    {
+                        "step": "move_folder",
+                        "source": "third_party_softwares/windows/zookeeper/zookeeper",
+                        "destination": "C:/Softwares/zookeeper"
+                    },
+                    {
+                        "step": "env_change",
+                        "env_var": "ZOOKEEPER_HOME",
+                        "env_path": "C:/Softwares/zookeeper"
+                    }
+                ]
+            }
+        },
+        "tomcat": {
+            "linux": {
+                "steps": [
+                    {
+                        "step": "copy_folder",
+                        "source": "third_party_softwares/linux/tomcat",
+                        "destination": "/opt"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo chmod 755 /opt/tomcat/bin/*.sh"
+                    },
+                    {
+                        "step": "copy_folder",
+                        "source": "build_files/Webapps/",
+                        "destination": "/opt/tomcat/webapps/",
+                        "copy_contents_only": true
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/opt/tomcat/webapps/ROOT/assets/manifest/qa",
+                        "cmd": "sudo chmod 755 mf.manifest.json"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/opt/tomcat/webapps/ROOT/assets/manifest/qa/mf.manifest.json",
+                        "key": "user-management-mfe",
+                        "value": "https://IP/user-management-mfe/remoteEntry.js"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/opt/tomcat/webapps/ROOT/assets/manifest/qa/mf.manifest.json",
+                        "key": "mfeReportManagement",
+                        "value": "https://IP/mfeReportManagement/remoteEntry.js"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/opt/tomcat/webapps/ROOT/assets/manifest/qa/mf.manifest.json",
+                        "key": "mfe-adapters",
+                        "value": "https://IP/mfe-adapters/remoteEntry.js"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/opt/tomcat/webapps/ROOT/assets/manifest/qa/mf.manifest.json",
+                        "key": "mfe-alarm",
+                        "value": "https://IP/mfe-alarm/remoteEntry.js"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/opt/tomcat/webapps/ROOT/assets/manifest/qa/mf.manifest.json",
+                        "key": "mfe-asset-management",
+                        "value": "https://IP/mfe-asset-management/remoteEntry.js"
+                    }
+                ]
+            },
+            "windows": {
+                "steps": [
+                    {
+                        "step": "zip_extract",
+                        "relative_zip_path": "third_party_softwares/windows/tomcat.zip",
+                        "extract_to": "third_party_softwares/windows/tomcat"
+                    },
+                    {
+                        "step": "move_folder",
+                        "source": "third_party_softwares/windows/tomcat/tomcat",
+                        "destination": "C:/Softwares/tomcat"
+                    },
+                    {
+                        "step": "env_change",
+                        "env_var": "CATALINA_HOME",
+                        "env_path": "C:/Softwares/tomcat"
+                    }
+                ]
+            }
+        },
+        "postgresql": {
+            "linux": {
+                "steps": [
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo apt-get update",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo apt-get install -y ca-certificates apt-transport-https software-properties-common gnupg2 lsb-release"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo apt-get clean",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo dpkg --configure -a",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo apt-get clean",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo systemctl unmask sleep.target suspend.target hibernate.target hybrid-sleep.target"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "apt-get install gnupg2 wget vim -y"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo apt-cache search postgresql | grep postgresql"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo bash -c 'echo \"deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main\" > /etc/apt/sources.list.d/pgdg.list'"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo bash -c 'wget -qO- https://www.postgresql.org/media/keys/ACCC4CF8.asc | tee /etc/apt/trusted.gpg.d/pgdg.asc &>/dev/null'"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo apt-get update",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "apt-get install postgresql-17 postgresql-client-17 -y"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "systemctl enable postgresql"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "systemctl start postgresql"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo -u postgres env PGPASSWORD='First#1234' psql -c \"ALTER USER postgres PASSWORD 'First#1234';\""
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo perl -0777 -i -pe \"s/^local\\s+all\\s+postgres\\s+peer$/local   all             postgres                                md5/m\" /etc/postgresql/*/main/pg_hba.conf"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo systemctl restart postgresql"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo apt-get install -y curl"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo bash -c 'curl -fsSL https://www.pgadmin.org/static/packages_pgadmin_org.pub | gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/pgadmin.gpg'",
+                        "remote_cmd": "sudo bash -c 'curl -fsSL https://www.pgadmin.org/static/packages_pgadmin_org.pub | gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/pgadmin.gpg'"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo bash -c 'echo \"deb https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main\" > /etc/apt/sources.list.d/pgadmin4.list'",
+                        "remote_cmd": "sudo bash -c 'echo \"deb https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main\" > /etc/apt/sources.list.d/pgadmin4.list'"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "apt-get update",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "DEBIAN_FRONTEND=noninteractive apt-get install -y pgadmin4"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo bash -c 'wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | gpg --dearmor > /etc/apt/trusted.gpg.d/timescaledb.gpg'",
+                        "remote_cmd": "sudo bash -c 'wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | gpg --dearmor > /etc/apt/trusted.gpg.d/timescaledb.gpg'"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo bash -c 'echo \"deb https://packagecloud.io/timescale/timescaledb/ubuntu/ $(lsb_release -cs) main\" > /etc/apt/sources.list.d/timescaledb.list'",
+                        "remote_cmd": "sudo bash -c 'echo \"deb https://packagecloud.io/timescale/timescaledb/ubuntu/ $(lsb_release -cs) main\" > /etc/apt/sources.list.d/timescaledb.list'"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo apt-get update",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo apt-get install -y timescaledb-2-postgresql-17"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo timescaledb-tune --yes"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo sed -i \"s/^#*shared_preload_libraries.*/shared_preload_libraries = 'timescaledb'/\" /etc/postgresql/17/main/postgresql.conf"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo sed -i \"s/^#*max_connections.*/max_connections = 1000/\" /etc/postgresql/17/main/postgresql.conf"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo systemctl restart postgresql"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo apt-get -y install pgagent"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo bash -c 'touch /etc/systemd/system/pgagent.service && chmod 666 /etc/systemd/system/pgagent.service'"
+                    },
+                    {
+                        "step": "add_config",
+                        "conf_file": "/etc/systemd/system/pgagent.service",
+                        "configuration_append": [
+                            "[Unit]",
+                            "Description=pgAgent Service for PostgreSQL",
+                            "After=network.target postgresql.service",
+                            "",
+                            "[Service]",
+                            "Type=simple",
+                            "User=ppc",
+                            "Group=ppc",
+                            "ExecStart=/usr/bin/pgagent -f -l 2 host=localhost port=5432 dbname=postgres user=postgres",
+                            "Restart=on-failure",
+                            "RestartSec=5",
+                            "",
+                            "[Install]",
+                            "WantedBy=multi-user.target"
+                        ]
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "touch /home/ppc/.pgpass && chmod 0600 /home/ppc/.pgpass",
+                        "use_sudo": false
+                    },
+                    {
+                        "step": "add_config",
+                        "conf_file": "/home/ppc/.pgpass",
+                        "configuration_append": [
+                            "localhost:5432:*:postgres:First#1234"
+                        ]
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo systemctl daemon-reload"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo systemctl enable pgagent"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo systemctl restart pgagent"
+                    }
+                ]
+            },
+            "windows": {
+                "steps": [
+                    {
+                        "step": "zip_extract",
+                        "relative_zip_path": "third_party_softwares/windows/PostgreSQL.zip",
+                        "extract_to": "third_party_softwares/windows"
+                    },
+                    {
+                        "step": "move_folder",
+                        "source": "third_party_softwares/windows/PostgreSQL",
+                        "destination": "C:/Program Files/PostgreSQL"
+                    },
+                    {
+                        "step": "env_change",
+                        "env_var": "POSTGRESQL_HOME",
+                        "env_path": "C:/Program Files/PostgreSQL/17"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "$s",
+                        "arguments": "= New-Object -ComObject WScript.Shell; $lnk = Join-Path $Env:ProgramData 'Microsoft\\Windows\\Start Menu\\Programs\\pgAdmin 4.lnk'; $sc = $s.CreateShortcut($lnk); $sc.TargetPath = 'C:\\Program Files\\PostgreSQL\\17\\pgAdmin 4\\runtime\\pgAdmin4.exe'; $sc.WorkingDirectory = 'C:\\Program Files\\PostgreSQL\\17\\pgAdmin 4'; $sc.Save()"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "if",
+                        "arguments": "(-not (Test-Path \"$Env:APPDATA\\pgadmin4\")) { New-Item -ItemType Directory -Path \"$Env:APPDATA\\pgadmin4\" -Force | Out-Null }"
+                    },
+                    {
+                        "step": "zip_extract",
+                        "relative_zip_path": "build_files/PPC_v4.5.0_",
+                        "extract_to": "build_files/PPC_build"
+                    },
+                    {
+                        "step": "move_folder",
+                        "source": "build_files/PPC_build/SPARK_PPC/liquidb/database",
+                        "destination": "C:/Program Files/database"
+                    },
+                    {
+                        "step": "move_folder",
+                        "source": "build_files/PPC_build/SPARK_PPC/liquidb/liquibase",
+                        "destination": "C:/Program Files/liquibase"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "$env:POSTGRESQL_HOME",
+                        "arguments": "='C:\\Program Files\\PostgreSQL\\17'; $pgbin = Join-Path $Env:POSTGRESQL_HOME 'bin\\initdb.exe'; $pgdata = Join-Path $Env:POSTGRESQL_HOME 'data'; $args = @('-D', $pgdata); if (-not (Test-Path (Join-Path $pgdata 'PG_VERSION'))) { Start-Process -FilePath $pgbin -ArgumentList $args -Wait -NoNewWindow }",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "takeown",
+                        "arguments": "/F \"$Env:POSTGRESQL_HOME\\data\" /R /D Y"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "cmd",
+                        "arguments": "/c --% icacls \"%POSTGRESQL_HOME%\\data\" /grant \"NT AUTHORITY\\SYSTEM:(OI)(CI)F\" /T",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "cmd",
+                        "arguments": "/c --% icacls \"%POSTGRESQL_HOME%\\data\" /grant \"NT AUTHORITY\\NETWORK SERVICE:(OI)(CI)F\" /T",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "append_config",
+                        "base_var": "POSTGRESQL_HOME",
+                        "relative_path": "data/postgresql.conf",
+                        "kv_style": "equals",
+                        "updates": {
+                            "shared_preload_libraries": "'timescaledb,pg_stat_statements'",
+                            "listen_addresses": "'*'",
+                            "idle_in_transaction_session_timeout": "60000",
+                            "shared_buffers": "1GB",
+                            "work_mem": "4MB",
+                            "maintenance_work_mem": "256MB",
+                            "effective_cache_size": "12GB",
+                            "max_worker_processes": "16",
+                            "max_connections": "10100",
+                            "wal_compression": "lz4"
+                        }
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "if (-not (Get-Service postgresql-x64-17 -ErrorAction SilentlyContinue)) { & \"$Env:POSTGRESQL_HOME\\bin\\pg_ctl.exe\" register -N postgresql-x64-17 -D \"$Env:POSTGRESQL_HOME\\data\" }"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "try { Start-Service postgresql-x64-17 -ErrorAction Stop } catch { Write-Output \"Service failed, trying pg_ctl...\"; & \"$Env:POSTGRESQL_HOME\\bin\\pg_ctl.exe\" start -D \"$Env:POSTGRESQL_HOME\\data\" }"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "if (-Not (Test-Path \"$Env:USERPROFILE\\AppData\\Roaming\\postgresql\\.pgpass\")) { New-Item -ItemType File -Path \"$Env:USERPROFILE\\AppData\\Roaming\\postgresql\\.pgpass\" -Force; Set-Content -Path \"$Env:USERPROFILE\\AppData\\Roaming\\postgresql\\.pgpass\" -Value \"localhost:5432:*:postgres:First#1234\" }"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "Restart-Service",
+                        "arguments": "-Name postgresql-x64-17"
+                    },
+                    {
+                        "step": "create_db",
+                        "bat_path": "C:/Program Files/database/postgres/ppc/win/ppc.bat",
+                        "db_user": "postgres",
+                        "db_password": "First#1234"
+                    }
+                ]
+            }
+        },
+        "liquibase": {
+            "linux": {
+                "steps": [
+                    {
+                        "step": "extract",
+                        "source": "third_party_softwares/linux/liquibase-4.25.0.tar.gz",
+                        "destination": "/tmp/liquibase"
+                    },
+                    {
+                    "step": "run_cmd",
+                    "cmd": "sudo cp -r /tmp/liquibase /opt/"
+                    },
+                    {
+                        "step": "env_setup",
+                        "env_path": "/home/ppc/.bashrc",
+                        "configured_path": "/opt/liquibase"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/",
+                        "cmd": "mkdir -p SPARK_PPC",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/",
+                        "cmd": "sudo chown -R ppc:ppc SPARK_PPC"
+                    },
+                    {
+                        "step": "copy_folder",
+                        "source": "build_files/SPARK_PPC/liquidb",
+                        "destination": "/home/ppc/SPARK_PPC/"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/liquidb/database/postgres/ppc",
+                        "cmd": "sudo chown -R $(whoami):$(whoami) unix"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo apt-get install dos2unix"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo dos2unix /home/ppc/SPARK_PPC/liquidb/database/postgres/ppc/unix/ppc.sh"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": " sudo chown -R ppc:ppc /home/ppc/SPARK_PPC/liquidb/liquibase"
+                    },
+                    {
+                        "step": "create_db",
+                        "path": "/home/ppc/SPARK_PPC/liquidb/database/postgres/ppc/unix",
+                        "db_user": "postgres",
+                        "db_password": "First#1234",
+                        "script_name": "./ppc.sh"
+                    }
+                ]
+            },
+            "windows": {
+                "steps": [
+                    {
+                        "step": "zip_extract",
+                        "relative_zip_path": "third_party_softwares/windows/liquibase.zip",
+                        "extract_to": "third_party_softwares/windows/liquibase"
+                    },
+                    {
+                        "step": "move_folder",
+                        "source": "third_party_softwares/windows/liquibase/liquibase",
+                        "destination": "C:/Program Files/liquibase"
+                    },
+                    {
+                        "step": "env_change",
+                        "env_var": "LIQUIBASE_HOME",
+                        "env_path": "C:/Program Files/liquibase"
+                    }
+                ]
+            }
+        },
+        "openssh": {
+            "linux": {
+                "steps": [
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo apt-get install -y openssh-client openssh-server"
+                    }
+                ]
+            },
+            "windows": {
+                "steps": [
+                    {
+                        "step": "zip_extract",
+                        "relative_zip_path": "third_party_softwares/windows/OpenSSH-Win64.zip",
+                        "extract_to": "third_party_softwares/windows/OpenSSH-Win64"
+                    },
+                    {
+                        "step": "move_folder",
+                        "source": "third_party_softwares/windows/OpenSSH-Win64/OpenSSH-Win64",
+                        "destination": "C:/Program Files/OpenSSH-Win64"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "powershell.exe",
+                        "arguments": "-NoProfile -ExecutionPolicy Bypass -Command \"& 'C:\\Program Files\\OpenSSH-Win64\\install-sshd'\""
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "if",
+                        "arguments": "(-not (Get-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -ErrorAction SilentlyContinue)) { New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH SSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22 }"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "powershell.exe",
+                        "arguments": "-NoProfile -ExecutionPolicy Bypass -Command \"& 'C:\\Program Files\\OpenSSH-Win64\\install-sshd'\""
+                    },
+                    {
+                        "step": "env_change",
+                        "env_var": "SSH_HOME",
+                        "env_path": "C:\\Program Files\\OpenSSH-Win64"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "Copy-Item",
+                        "arguments": "\"C:\\Program Files\\OpenSSH-Win64\\sshd_config_default\" \"C:\\Program Files\\OpenSSH-Win64\\sshd_config\" -Force"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "Copy-Item",
+                        "arguments": "\"C:\\Program Files\\OpenSSH-Win64\\sshd_config_default\" \"C:\\ProgramData\\ssh\\sshd_config\" -Force"
+                    },
+                    {
+                        "step": "env_change",
+                        "env_var": "SSH_DATA_HOME",
+                        "env_path": "C:\\ProgramData\\ssh"
+                    },
+                    {
+                        "step": "append_config",
+                        "base_var": "SSH_HOME",
+                        "relative_path": "sshd_config",
+                        "kv_style": "space",
+                        "updates": {
+                            "Port": "22",
+                            "AddressFamily": "any",
+                            "ListenAddress": "0.0.0.0",
+                            "PasswordAuthentication": "yes",
+                            "StrictModes": "no",
+                            "PubkeyAuthentication": "yes",
+                            "PermitRootLogin": "yes"
+                        }
+                    },
+                    {
+                        "step": "append_config",
+                        "base_var": "SSH_DATA_HOME",
+                        "relative_path": "sshd_config",
+                        "kv_style": "space",
+                        "updates": {
+                            "Port": "22",
+                            "AddressFamily": "any",
+                            "ListenAddress": "0.0.0.0",
+                            "PasswordAuthentication": "yes",
+                            "StrictModes": "no",
+                            "PubkeyAuthentication": "yes",
+                            "PermitRootLogin": "yes"
+                        }
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "&",
+                        "arguments": "New-Item -ItemType File -Path \"C:\\Program Files\\OpenSSH-Win64\\administrators_authorized_keys\" -Force | Out-Null"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "&",
+                        "arguments": "New-Item -ItemType File -Path \"C:\\ProgramData\\ssh\\administrators_authorized_keys\" -Force | Out-Null"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "icacls",
+                        "arguments": "\"C:\\Program Files\\OpenSSH-Win64\\administrators_authorized_keys\" /inheritance:r"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "icacls",
+                        "arguments": "\"C:\\Program Files\\OpenSSH-Win64\\administrators_authorized_keys\" /grant Administrators:F"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "icacls",
+                        "arguments": "\"C:\\Program Files\\OpenSSH-Win64\\administrators_authorized_keys\" /grant SYSTEM:F"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "Restart-Service",
+                        "arguments": "-Name sshd"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "powershell.exe",
+                        "arguments": "-Command \"Set-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -Profile Any\""
+                    }
+                ]
+            }
+        },
+        "SPARK_PPC": {
+            "linux": {
+                "steps": [
+                    {
+                        "step": "run_cmd",
+                        "path": ".",
+                        "cmd": "unzip -o build_files/PPC_4.5_INteraluse.zip -d build_files/",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/",
+                        "cmd": "mkdir -p SPARK_PPC",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/",
+                        "cmd": "sudo chmod 755 SPARK_PPC"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/",
+                        "cmd": "sudo chown -R ppc:ppc SPARK_PPC"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "build_files/",
+                        "cmd": "sudo chmod -R 755 *"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "build_files/SPARK_PPC",
+                        "cmd": "cp init.sh /home/ppc/SPARK_PPC/",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC",
+                        "cmd": "mkdir -p adapters",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "copy_folder",
+                        "source": "build_files/SPARK_PPC/adapters/icmp-adapter",
+                        "destination": "/home/ppc/SPARK_PPC/adapters/"
+                    },
+                    {
+                        "step": "copy_folder",
+                        "source": "build_files/SPARK_PPC/liquidb",
+                        "destination": "/home/ppc/SPARK_PPC/"
+                    },
+                    {
+                        "step": "copy_folder",
+                        "source": "build_files/SPARK_PPC/Microservices",
+                        "destination": "/home/ppc/SPARK_PPC/"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "source": "/home/ppc/",
+                        "destination": "sudo dos2unix -R *"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo chmod 755 -R /home/ppc/SPARK_PPC/"
+                    },
+                    {
+                        "step": "copy_folder",
+                        "source": "build_files/SPARK_PPC/Microservices/unixservices_hmi",
+                        "destination": "/etc/systemd/system",
+                        "copy_contents_only": true
+                    }
+                ]
+            },
+            "windows": {
+                "steps": [
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "if (Test-Path 'C:\\Softwares\\tomcat\\Webapps') { Remove-Item 'C:\\Softwares\\tomcat\\Webapps' -Recurse -Force }"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "if (Test-Path 'C:\\Softwares\\tomcat\\webapps') { Remove-Item 'C:\\Softwares\\tomcat\\webapps' -Recurse -Force }"
+                    },
+                    {
+                        "step": "move_folder",
+                        "source": "build_files/PPC_build/Webapps",
+                        "destination": "C:/Softwares/tomcat/Webapps"
+                    },
+                    {
+                        "step": "update_xml_attr",
+                        "file_path": "C:\\Softwares\\tomcat\\conf\\server.xml",
+                        "attribute": "keystoreFile",
+                        "new_value": "C:/Softwares/tomcat/conf/srs30.keystore"
+                    },
+                    {
+                        "step": "json_update",
+                        "file": "C:/Softwares/tomcat/Webapps/ROOT/assets/manifest/qa/mf.manifest.json",
+                        "updates": {
+                            "user-management-mfe": "https://{{SELF_IP}}/user-management-mfe/remoteEntry.js",
+                            "mfeReportManagement": "https://{{SELF_IP}}/mfeReportManagement/remoteEntry.js",
+                            "mfe-adapters": "https://{{SELF_IP}}/mfe-adapters/remoteEntry.js",
+                            "mfe-alarm": "https://{{SELF_IP}}/mfe-alarm/remoteEntry.js",
+                            "mfe-asset-management": "https://{{SELF_IP}}/mfe-asset-management/remoteEntry.js",
+                            "mfe-trends": "https://{{SELF_IP}}/mfe-trends/remoteEntry.js",
+                            "mfe-configurations": "https://{{SELF_IP}}/mfe-configurations/remoteEntry.js",
+                            "mfe-setpoints": "https://{{SELF_IP}}/mfe-setpoints/remoteEntry.js",
+                            "mfe-analytics-dashboard": "https://{{SELF_IP}}/mfe-analytics-dashboard/remoteEntry.js",
+                            "mfe-system-configuration": "https://{{SELF_IP}}/mfe-system-configuration/remoteEntry.js",
+                            "mfe-notification": "https://{{SELF_IP}}/mfe-notification/remoteEntry.js"
+                        }
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "Start-Process",
+                        "arguments": "cmd.exe -ArgumentList '/c startup.bat' -WorkingDirectory 'C:\\Softwares\\tomcat\\bin' -WindowStyle Hidden"
+                    },
+                    {
+                        "step": "move_folder",
+                        "source": "build_files/PPC_build/SPARK_PPC/adapters/icmp-adapter",
+                        "destination": "C:/SPARK_PPC/adapters/icmp-adapter"
+                    },
+                    {
+                        "step": "move_folder",
+                        "source": "build_files/PPC_build/SPARK_PPC/microservices",
+                        "destination": "C:/SPARK_PPC/microservices"
+                    },
+                    {
+                        "step": "env_change",
+                        "env_var": "PPC_DB_HOST",
+                        "env_path": "localhost"
+                    },
+                    {
+                        "step": "env_change",
+                        "env_var": "PPC_DB_NAMES",
+                        "env_path": "${dbstring}"
+                    },
+                    {
+                        "step": "env_change",
+                        "env_var": "PPC_DB_PASSWORD",
+                        "env_path": "32zl9LGnr9Sr6xef/N8xujGqgfta2v6QSVPIMABBvm/vlwWcnKnIRIxKbYdF4EzgKUF9IA=="
+                    },
+                    {
+                        "step": "env_change",
+                        "env_var": "PPC_DB_PORT",
+                        "env_path": "5432"
+                    },
+                    {
+                        "step": "env_change",
+                        "env_var": "PPC_DB_USER",
+                        "env_path": "postgres"
+                    },
+                    {
+                        "step": "env_change",
+                        "env_var": "PPC_MICROSERVICES_HOME",
+                        "env_path": "C:\\SPARK_PPC\\Microservices\\lib"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "[System.Environment]::SetEnvironmentVariable('PPC_ADAPTER_HOME', 'C:\\SPARK_PPC\\adapters', 'Machine'); $env:PPC_ADAPTER_HOME='C:\\SPARK_PPC\\adapters'; Write-Host 'PPC_ADAPTER_HOME environment variable set successfully.'"
+                    }
+                ]
+            }
+        },
+        "HMI_config": {
+            "linux": {
+                "steps": [
+                    {
+                        "step": "modify_files",
+                        "src": "/etc/systemd/system",
+                        "files": [
+                            "alarms-service.service",
+                            "kafka.service",
+                            "analogdataprocessor.service",
+                            "latestdataprocessor.service",
+                            "api-gateway.service",
+                            "master-feature.service",
+                            "api-service-registry.service",
+                            "archive-fileprocess.service",
+                            "assetdataservice.service",
+                            "ppccorerte.service",
+                            "asset-management-service.service",
+                            "ppc-service.service",
+                            "compliancedataprocessor.service",
+                            "protocol-service.service",
+                            "discretedataprocessor.service",
+                            "encrypt-decrypt.service",
+                            "report-configuration-server.service",
+                            "report-generator.service",
+                            "historian-filetransfer.service",
+                            "historycatchup.service",
+                            "user-management-server.service",
+                            "zookeeper.service"
+                        ],
+                        "line": "Environment=DB_NAMES=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "Enviroment=DB_NAMES=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/etc/systemd/system",
+                        "files": [
+                            "alarms-service.service",
+                            "kafka.service",
+                            "analogdataprocessor.service",
+                            "latestdataprocessor.service",
+                            "api-gateway.service",
+                            "master-feature.service",
+                            "api-service-registry.service",
+                            "archive-fileprocess.service",
+                            "assetdataservice.service",
+                            "asset-management-service.service",
+                            "ppc-service.service",
+                            "compliancedataprocessor.service",
+                            "protocol-service.service",
+                            "discretedataprocessor.service",
+                            "encrypt-decrypt.service",
+                            "report-configuration-server.service",
+                            "report-generator.service",
+                            "historian-filetransfer.service",
+                            "historycatchup.service",
+                            "user-management-server.service",
+                            "zookeeper.service"
+                        ],
+                        "line": "Environment=PPC_DB_NAMES=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "Environment=PPC_DB_NAMES=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/etc/systemd/system",
+                        "files": [
+                            "alarms-service.service",
+                            "kafka.service",
+                            "analogdataprocessor.service",
+                            "latestdataprocessor.service",
+                            "api-gateway.service",
+                            "master-feature.service",
+                            "api-service-registry.service",
+                            "ModbusClient.service",
+                            "archive-fileprocess.service",
+                            "ModbusServer.service",
+                            "assetdataservice.service",
+                            "ppccorerte.service",
+                            "asset-management-service.service",
+                            "ppc-service.service",
+                            "compliancedataprocessor.service",
+                            "protocol-service.service",
+                            "discretedataprocessor.service",
+                            "PythonURLHandler.service",
+                            "encrypt-decrypt.service",
+                            "report-configuration-server.service",
+                            "HealthMonitor.service",
+                            "report-generator.service",
+                            "historian-filetransfer.service",
+                            "SettingsReader.service",
+                            "historycatchup.service",
+                            "iec104-adapter.service",
+                            "user-management-server.service",
+                            "iec61850-adapter.service",
+                            "zookeeper.service"
+                        ],
+                        "line": "Environment=ARCHIVAL_DB_NAMES=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "Environment=ARCHIVAL_DB_NAMES=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/alarms-service/config",
+                        "files": [
+                            "alarms-service.properties"
+                        ],
+                        "line": "datasource.dbname=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "datasource.dbname=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/alarms-service/config",
+                        "files": [
+                            "alarms-service.properties"
+                        ],
+                        "line": "datasource.dbnames=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "datasource.dbnames=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/analogdataprocessor/config",
+                        "files": [
+                            "hikari.analogdataprocessor.properties"
+                        ],
+                        "line": "db.names=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "db.names=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/analogdataprocessor/config",
+                        "files": [
+                            "hikari.analogdataprocessor.properties"
+                        ],
+                        "line": "db.archival.names=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "db.archival.names=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/archive-fileprocess/config",
+                        "files": [
+                            "archival_fps.properties"
+                        ],
+                        "line": "database.list=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6,ppc7,ppc8,ppc9",
+                        "replaced_line": "database.list=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/asset-management-service/config",
+                        "files": [
+                            "hikari.assetmanagement.properties"
+                        ],
+                        "line": "datasource.dbname=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "datasource.dbname=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/asset-management-service/config",
+                        "files": [
+                            "hikari.assetmanagement.properties"
+                        ],
+                        "line": "datasource.other.dbnames=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "datasource.other.dbnames=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/assetdataservice/config",
+                        "files": [
+                            "hikari.assetdata.properties"
+                        ],
+                        "line": "db.names=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "db.names=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/assetdataservice/config",
+                        "files": [
+                            "hikari.assetdata.properties"
+                        ],
+                        "line": "db.historian.names=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "db.historian.names=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/discretedataprocessor/config",
+                        "files": [
+                            "hikari.discretedataprocessor.properties"
+                        ],
+                        "line": "db.names=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "db.names=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/discretedataprocessor/config",
+                        "files": [
+                            "hikari.discretedataprocessor.properties"
+                        ],
+                        "line": "db.archival.names=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "db.archival.names=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/latestdataprocessor/conf",
+                        "files": [
+                            "hikari.latestdataprocessor.properties"
+                        ],
+                        "line": "db.names=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "db.names=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/latestdataprocessor/conf",
+                        "files": [
+                            "hikari.latestdataprocessor.properties"
+                        ],
+                        "line": "db.archival.names=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "db.archival.names=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/master-feature/conf",
+                        "files": [
+                            "hikari.properties"
+                        ],
+                        "line": "datasource.dbname=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "datasource.dbname=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/master-feature/conf",
+                        "files": [
+                            "hikari.properties"
+                        ],
+                        "line": "datasource.other.dbnames=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "datasource.other.dbnames=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/ppc-service/conf",
+                        "files": [
+                            "hikari.ppcservice.properties"
+                        ],
+                        "line": "datasource.dbname=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6,ppc7,ppc8,ppc9",
+                        "replaced_line": "datasource.dbname=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/protocol-service/config",
+                        "files": [
+                            "hikari.protocolservice.properties"
+                        ],
+                        "line": "datasource.dbname=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "datasource.dbname=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/protocol-service/config",
+                        "files": [
+                            "hikari.protocolservice.properties"
+                        ],
+                        "line": "datasource.other.dbnames=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "datasource.other.dbnames=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/report-configuration-server/config",
+                        "files": [
+                            "hikari.reportconfiguration.properties"
+                        ],
+                        "line": "datasource.dbname=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "datasource.dbname=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/report-configuration-server/config",
+                        "files": [
+                            "hikari.reportconfiguration.properties"
+                        ],
+                        "line": "datasource.other.dbnames=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "datasource.other.dbnames=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/report-generator/config",
+                        "files": [
+                            "report_generator.properties"
+                        ],
+                        "line": "datasource.dbname=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "datasource.dbname=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/report-generator/config",
+                        "files": [
+                            "report_generator.properties"
+                        ],
+                        "line": "datasource.other.dbnames=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "datasource.other.dbnames=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/report-generator/config",
+                        "files": [
+                            "report_generator.properties"
+                        ],
+                        "line": "datasource.archival.dbname=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6,ppc7,ppc8,ppc9",
+                        "replaced_line": "datasource.archival.dbname=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/user-management-server/config",
+                        "files": [
+                            "hikari.usermanagement.properties"
+                        ],
+                        "line": "datasource.dbname=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "datasource.dbname=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/user-management-server/config",
+                        "files": [
+                            "hikari.usermanagement.properties"
+                        ],
+                        "line": "datasource.other.dbnames=ppc,ppc1,ppc2,ppc3,ppc4,ppc5,ppc6",
+                        "replaced_line": "datasource.other.dbnames=dbstring",
+                        "db_replacement": true
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/icmp-adapter/config/connectionsconfig.json",
+                        "key": "Connections.Redis.IP",
+                        "value": "MASTER_IP"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/icmp-adapter/config/connectionsconfig.json",
+                        "key": "Connections.ScadaSetpoint.IP",
+                        "value": "MASTER_IP"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/icmp-adapter/config/connectionsconfig.json",
+                        "key": "Configurations.VM_Setpoint",
+                        "value": "slaves_configuration"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/icmp-adapter/config/connectionsconfig.json",
+                        "key": "Configurations.VM_Setpoint",
+                        "value": "slaves_configuration"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/icmp-adapter/config/connectionsconfig.json",
+                        "key": "Configurations.VM_Redis",
+                        "value": "slaves_configuration"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC",
+                        "cmd": "sudo chmod +x init.sh"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC",
+                        "cmd": "dos2unix init.sh"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC",
+                        "cmd": "sudo ./init.sh"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/Microservices",
+                        "cmd": "sudo chmod +x *"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/Microservices",
+                        "cmd": "sudo systemctl daemon-reload"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/Microservices/bin/unix",
+                        "cmd": "sudo chmod +x StartServices_hmi.sh"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/Microservices/bin/unix",
+                        "cmd": "./StartServices_hmi.sh"
+                    }
+                ]
+            },
+            "windows": {
+                "steps": [
+                    {
+                        "step": "json_update",
+                        "file": "C:/SPARK_PPC/adapters/icmp-adapter/config/connectionsconfig.json",
+                        "updates": {
+                            "Connections.Redis.IP": "{{MASTER_IP}}",
+                            "Connections.Database.Host": "{{MASTER_IP}}",
+                            "Connections.Database.Database": "{{MASTER_DB}}",
+                            "Connections.DecryptUtil.IP": "{{MASTER_IP}}",
+                            "Configurations.Process_Operation_Mode": "VM",
+                            "Configurations.start_stop_config.FilePath": "../../runPPC/win",
+                            "Configurations.start_stop_config.StartFileName": "runPPC.bat",
+                            "Configurations.start_stop_config.StopFileName": "stopPPC.bat",
+                            "Configurations.start_stop_config.StopFileNamefromAPI": "stopPPCfromAPI.bat"
+                        },
+                        "rebuild": [
+                            {
+                                "target": "Configurations.VM_Setpoint",
+                                "include_roles": [
+                                    "SL"
+                                ],
+                                "key_from": "dbname",
+                                "key_transform": "UPPER",
+                                "fields": {
+                                    "IP": {
+                                        "from": "ip"
+                                    },
+                                    "Port": {
+                                        "value": 5000
+                                    }
+                                }
+                            },
+                            {
+                                "target": "Configurations.VM_Redis",
+                                "include_roles": [
+                                    "SL"
+                                ],
+                                "key_from": "dbname",
+                                "key_transform": "UPPER",
+                                "fields": {
+                                    "name": {
+                                        "from": "dbname",
+                                        "transform": "UPPER"
+                                    },
+                                    "IP": {
+                                        "from": "ip"
+                                    },
+                                    "Port": {
+                                        "value": 6379
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "if (Test-Path 'C:\\Softwares\\redis\\redis.windows.conf') { (Get-Content 'C:\\Softwares\\redis\\redis.windows.conf') | ForEach-Object { if ($_ -match '^\\s*bind\\s+127\\.0\\.0\\.1') { 'bind 0.0.0.0' } elseif ($_ -match '^\\s*protected-mode\\s+yes') { 'protected-mode no' } else { $_ } } | Set-Content 'C:\\Softwares\\redis\\redis.windows.conf' } else { Write-Host 'Redis config not found, skipping.' }"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "Start-Process",
+                        "arguments": "cmd.exe -ArgumentList '/c InstallServices_hmi.bat' -WorkingDirectory 'C:\\SPARK_PPC\\Microservices\\bin\\win' -Wait -WindowStyle Hidden"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "Start-Process",
+                        "arguments": "cmd.exe -ArgumentList '/c StartServices_hmi.bat' -WorkingDirectory 'C:\\SPARK_PPC\\Microservices\\bin\\win' -Wait"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "$serviceName = 'lntds-icmp-adapter'; $xmlPath = 'C:\\SPARK_PPC\\adapters\\icmp-adapter\\icmp-adapter.xml'; $exePath = 'C:\\SPARK_PPC\\Microservices\\bin\\win\\microservice.exe'; if ((Test-Path $exePath) -and (Test-Path $xmlPath)) { $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue; if (-not $service) { Start-Process $exePath -ArgumentList \"install $xmlPath\" -NoNewWindow -Wait; Write-Host 'icmp-adapter installed.'; Start-Sleep -Seconds 2 }; $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue; if ($service.Status -ne 'Running') { Start-Process $exePath -ArgumentList \"start $xmlPath\" -NoNewWindow; Write-Host 'icmp-adapter started.' } else { Write-Host 'icmp-adapter already running, skipping.' } } else { Write-Host 'Executable or XML not found, skipping.' }"
+                    },
+                    {
+                        "step": "update_properties",
+                        "base_dir": "C:/SPARK_PPC/Microservices/lib",
+                        "keys": [
+                            "datasource.dbnames",
+                            "datasource.dbname",
+                            "database.list",
+                            "datasource.other.dbnames",
+                            "db.names",
+                            "other.db.names",
+                            "db.historian.names",
+                            "db.archival.names",
+                            "spring.datasource.dbNames",
+                            "datasource.archival.dbname"
+                        ]
+                    }
+                ]
+            }
+        },
+        "dos2unix": {
+            "linux": {
+                "steps": [
+                    {
+                        "step": "run_cmd",
+                        "cmd": "apt-get install -y dos2unix"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "third_party_softwares/linux",
+                        "cmd": "dos2unix core_install.sh"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "third_party_softwares/linux",
+                        "cmd": "chmod +x core_install.sh"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "third_party_softwares/linux",
+                        "cmd": "sudo ./core_install.sh"
+                    }
+                ]
+            }
+        },
+        "core_config": {
+            "windows": {
+                "steps": [
+                    {
+                        "step": "remote_copy",
+                        "source": "build_files/PPC_build/SPARK_PPC/adapters",
+                        "destination": "C:/NGInstaller_Staging/SPARK_PPC/adapters"
+                    },
+                    {
+                        "step": "remote_copy",
+                        "source": "build_files/PPC_build/SPARK_PPC/microservices",
+                        "destination": "C:/NGInstaller_Staging/SPARK_PPC/Microservices"
+                    },
+                    {
+                        "step": "remote_copy",
+                        "source": "build_files/PPC_build/SPARK_PPC/RTE",
+                        "destination": "C:/NGInstaller_Staging/SPARK_PPC/RTE"
+                    },
+                    {
+                        "step": "remote_copy",
+                        "source": "build_files/PPC_build/SPARK_PPC/NGridLogger",
+                        "destination": "C:/NGInstaller_Staging/SPARK_PPC/NGridLogger"
+                    },
+                    {
+                        "step": "remote_copy",
+                        "source": "build_files/PPC_build/SPARK_PPC/redundancy",
+                        "destination": "C:/NGInstaller_Staging/SPARK_PPC/redundancy"
+                    },
+                    {
+                        "step": "remote_copy",
+                        "source": "build_files/PPC_build/SPARK_PPC/runPPC",
+                        "destination": "C:/NGInstaller_Staging/SPARK_PPC/runPPC"
+                    },
+                    {
+                        "step": "remote_copy",
+                        "source": "build_files/PPC_build/SPARK_PPC/SettingsReader",
+                        "destination": "C:/NGInstaller_Staging/SPARK_PPC/SettingsReader"
+                    },
+                    {
+                        "step": "remote_copy",
+                        "source": "build_files/PPC_build/SPARK_PPC/setup",
+                        "destination": "C:/NGInstaller_Staging/SPARK_PPC/setup"
+                    },
+                    {
+                        "step": "move_folder",
+                        "source": "C:/NGInstaller_Staging/SPARK_PPC",
+                        "destination": "C:/SPARK_PPC"
+                    },
+                    {
+                        "step": "env_change",
+                        "env_var": "PPC_MICROSERVICES_HOME",
+                        "env_path": "C:\\SPARK_PPC\\Microservices\\lib"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "Start-Process",
+                        "arguments": "cmd.exe -ArgumentList '/c InstallServices_core.bat' -WorkingDirectory 'C:\\SPARK_PPC\\Microservices\\bin\\win' -Wait -WindowStyle Hidden"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "Start-Process",
+                        "arguments": "cmd.exe -ArgumentList '/c StartServices_core.bat' -WorkingDirectory 'C:\\SPARK_PPC\\Microservices\\bin\\win' -Wait "
+                    },
+                    {
+                        "step": "json_update",
+                        "file": "C:/SPARK_PPC/adapters/iec104-adapter/config/connectionsconfig.json",
+                        "updates": {
+                            "Connections.Database.Host": "{{MASTER_IP}}",
+                            "Connections.Redis.IP": "{{SELF_IP}}",
+                            "Connections.Database.Database": "{{SELF_DB}}",
+                            "Connections.DecryptUtil.IP": "{{MASTER_IP}}",
+                            "Connections.ScadaSetpoint.IP": "{{SELF_IP}}",
+                            "Connections.SCADA_Conn.IP": "{{SELF_IP}}",
+                            "Configurations.Process_Operation_Mode": "VM",
+                            "Configurations.start_stop_config.FilePath": "../../runPPC/win",
+                            "Configurations.start_stop_config.StartFileName": "runPPC.bat",
+                            "Configurations.start_stop_config.StopFileName": "stopPPC.bat",
+                            "Configurations.start_stop_config.StopFileNamefromAPI": "stopPPCfromAPI.bat"
+                        }
+                    },
+                    {
+                        "step": "json_update",
+                        "file": "C:/SPARK_PPC/adapters/modbus-adapters/config/connectionsconfig.json",
+                        "updates": {
+                            "Connections.Database.Host": "{{MASTER_IP}}",
+                            "Connections.Redis.IP": "{{SELF_IP}}",
+                            "Connections.Database.Database": "{{SELF_DB}}",
+                            "Connections.DecryptUtil.IP": "{{MASTER_IP}}",
+                            "Connections.ScadaSetpoint.IP": "{{SELF_IP}}",
+                            "Connections.SCADA_Conn.IP": "{{SELF_IP}}",
+                            "Configurations.Process_Operation_Mode": "VM",
+                            "Configurations.start_stop_config.FilePath": "../../runPPC/win",
+                            "Configurations.start_stop_config.StartFileName": "runPPC.bat",
+                            "Configurations.start_stop_config.StopFileName": "stopPPC.bat",
+                            "Configurations.start_stop_config.StopFileNamefromAPI": "stopPPCfromAPI.bat"
+                        }
+                    },
+                    {
+                        "step": "json_update",
+                        "file": "C:/SPARK_PPC/adapters/iec61850-adapter/config/connectionsconfig.json",
+                        "updates": {
+                            "Connections.Database.Host": "{{MASTER_IP}}",
+                            "Connections.Redis.IP": "{{SELF_IP}}",
+                            "Connections.Database.Database": "{{SELF_DB}}",
+                            "Connections.DecryptUtil.IP": "{{MASTER_IP}}",
+                            "Connections.ScadaSetpoint.IP": "{{SELF_IP}}",
+                            "Connections.SCADA_Conn.IP": "{{SELF_IP}}",
+                            "Configurations.Process_Operation_Mode": "VM",
+                            "Configurations.start_stop_config.FilePath": "../../runPPC/win",
+                            "Configurations.start_stop_config.StartFileName": "runPPC.bat",
+                            "Configurations.start_stop_config.StopFileName": "stopPPC.bat",
+                            "Configurations.start_stop_config.StopFileNamefromAPI": "stopPPCfromAPI.bat"
+                        }
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "if (Test-Path 'C:\\Softwares\\redis\\redis.windows.conf') { (Get-Content 'C:\\Softwares\\redis\\redis.windows.conf') | ForEach-Object { if ($_ -match '^\\s*bind\\s+127\\.0\\.0\\.1') { 'bind 0.0.0.0' } elseif ($_ -match '^\\s*protected-mode\\s+yes') { 'protected-mode no' } else { $_ } } | Set-Content 'C:\\Softwares\\redis\\redis.windows.conf' } else { Write-Host 'Redis config not found, skipping.' }"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "if ((Get-Service -Name Redis -ErrorAction SilentlyContinue).Status -ne 'Running')",
+                        "arguments": "{ Start-Service Redis }"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "Start-Process",
+                        "arguments": "cmd.exe -ArgumentList '/c build.bat' -WorkingDirectory 'C:\\SPARK_PPC\\setup' -Wait -WindowStyle Hidden"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "Start-Process",
+                        "arguments": "cmd.exe -ArgumentList '/c installdependencies.bat' -WorkingDirectory 'C:\\SPARK_PPC\\setup' -Wait -WindowStyle Hidden"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "Start-Process",
+                        "arguments": "cmd.exe -ArgumentList '/c py -m pip install --upgrade pip && py -m pip install -r requirements.txt' -WorkingDirectory 'C:\\SPARK_PPC\\adapters\\modbus-adapters\\src' -Wait -WindowStyle Hidden"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "Start-Process",
+                        "arguments": "cmd.exe -ArgumentList '/c py -m pip install psycopg2-binary' -Wait -WindowStyle Hidden"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "Start-Process",
+                        "arguments": "cmd.exe -ArgumentList '/c py -m pip install psycopg' -Wait -WindowStyle Hidden"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "Start-Process",
+                        "arguments": "cmd.exe -ArgumentList '/c runPPC.bat' -WorkingDirectory 'C:\\SPARK_PPC\\runPPC\\win' -Wait -WindowStyle Hidden"
+                    }
+                ]
+            },
+            "linux": {
+                "steps": [
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/",
+                        "cmd": "mkdir -p SPARK_PPC",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/",
+                        "cmd": "sudo chown -R ppc:ppc SPARK_PPC"
+                    },
+                    {
+                        "step": "copy_folder",
+                        "source": "build_files/SPARK_PPC/adapters",
+                        "destination": "/home/ppc/SPARK_PPC"
+                    },
+                    {
+                        "step": "copy_folder",
+                        "source": "build_files/SPARK_PPC/Microservices",
+                        "destination": "/home/ppc/SPARK_PPC"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/RTE/unix/bin",
+                        "cmd": "bash -c 'if [ -d /home/ppc/SPARK_PPC/RTE/unix/bin ]; then chmod +x stop-core.sh; else echo \"[SKIPPED] Folder not found\"; fi'",
+                        "use_sudo": true,
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/RTE/unix/bin",
+                        "cmd": "bash -c 'if [ -d /home/ppc/SPARK_PPC/RTE/unix/bin ]; then ./stop-core.sh; else echo \"[SKIPPED] Folder not found\"; fi'",
+                        "use_sudo": true,
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "copy_folder",
+                        "source": "build_files/SPARK_PPC/RTE",
+                        "destination": "/home/ppc/SPARK_PPC"
+                    },
+                    {
+                        "step": "copy_folder",
+                        "source": "build_files/SPARK_PPC/runPPC",
+                        "destination": "/home/ppc/SPARK_PPC"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/SettingsReader/unix/bin",
+                        "cmd": "bash -c 'if [ -d /home/ppc/SPARK_PPC/SettingsReader/unix/bin ]; then chmod +x stop-sr.sh; else echo \"[SKIPPED] Folder not found\"; fi'",
+                        "use_sudo": true,
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/SettingsReader/unix/bin",
+                        "cmd": "bash -c 'if [ -d /home/ppc/SPARK_PPC/SettingsReader/unix/bin ]; then ./stop-sr.sh; else echo \"[SKIPPED] Folder not found\"; fi'",
+                        "use_sudo": true,
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "copy_folder",
+                        "source": "build_files/SPARK_PPC/SettingsReader",
+                        "destination": "/home/ppc/SPARK_PPC"
+                    },
+                    {
+                        "step": "copy_folder",
+                        "source": "build_files/SPARK_PPC/redundancy",
+                        "destination": "/home/ppc/SPARK_PPC"
+                    },
+                    {
+                        "step": "copy_folder",
+                        "source": "build_files/SPARK_PPC/init.sh",
+                        "destination": "/home/ppc/SPARK_PPC"
+                    },
+                    {
+                        "step": "copy_folder",
+                        "source": "build_files/SPARK_PPC/NGridLogger",
+                        "destination": "/home/ppc/SPARK_PPC"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo apt-get install -y dos2unix"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/",
+                        "cmd": "sudo find /home/ppc/SPARK_PPC \\( -type d -name logs -prune \\) -o \\( -type f -exec dos2unix -q {} \\; \\)"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/modbus-adapters/config/connectionsconfig.json",
+                        "key": "Connections.Redis.IP",
+                        "value": "IP"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/modbus-adapters/config/connectionsconfig.json",
+                        "key": "Connections.Database.IP",
+                        "value": "MASTER_IP"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/modbus-adapters/config/connectionsconfig.json",
+                        "key": "Connections.Database.Database",
+                        "value": "db_name"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/modbus-adapters/config/connectionsconfig.json",
+                        "key": "Connections.ScadaSetpoint.IP",
+                        "value": "IP"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/modbus-adapters/config/connectionsconfig.json",
+                        "key": "Connections.SCADA_Conn.IP",
+                        "value": "IP"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/modbus-adapters/config/connectionsconfig.json",
+                        "key": "Connections.DecryptUtil.IP",
+                        "value": "MASTER_IP"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/modbus-adapters/config/connectionsconfig.json",
+                        "key": "Configurations.Process_Operation_Mode",
+                        "value": "VM"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/modbus-adapters/config/connectionsconfig.json",
+                        "key": "Connections.Redis.IP",
+                        "value": "MASTER_IP"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/modbus-adapters/config/connectionsconfig.json",
+                        "key": "Connections.ScadaSetpoint.IP",
+                        "value": "MASTER_IP"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/iec61850-adapter/config/connectionsconfig.json",
+                        "key": "Connections.SCADA_Conn.IP",
+                        "value": "IP"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/iec61850-adapter/config/connectionsconfig.json",
+                        "key": "Connections.DecryptUtil.IP",
+                        "value": "MASTER_IP"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/iec61850-adapter/config/connectionsconfig.json",
+                        "key": "Configurations.Process_Operation_Mode",
+                        "value": "VM"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/iec61850-adapter/config/connectionsconfig.json",
+                        "key": "Connections.Redis.IP",
+                        "value": "MASTER_IP"
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/iec61850-adapter/config/connectionsconfig.json",
+                        "key": "Connections.ScadaSetpoint.IP",
+                        "value": "MASTER_IP"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC",
+                        "cmd": "sudo chmod +x init.sh"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/Microservices",
+                        "cmd": "sudo chmod +x *"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/Microservices",
+                        "cmd": "sudo systemctl daemon-reload"
+                    },
+                    {
+                        "step": "copy_folder",
+                        "source": "build_files/SPARK_PPC/Microservices/unixservices_core",
+                        "destination": "/etc/systemd/system",
+                        "copy_contents_only": true
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/Microservices/bin/unix",
+                        "cmd": "sudo chmod +x StartServices_system_core.sh",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/Microservices/bin/unix",
+                        "cmd": "./StartServices_system_core.sh 2>/dev/null",
+                        "use_sudo": true,
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo apt-get install python3-pip libpq-dev python3-dev -y"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/adapters/modbus-adapters/src",
+                        "cmd": "pip3 install -r requirements.txt",
+                        "use_sudo": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/adapters/modbus-adapters/src",
+                        "cmd": "pip3 install psycopg",
+                        "use_sudo": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/adapters/modbus-adapters/src",
+                        "cmd": "pip3 install psycopg2",
+                        "use_sudo": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/Microservices/bin/unix",
+                        "cmd": "sudo chmod +x StartServices_core.sh"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/Microservices/bin/unix",
+                        "cmd": "./StartServices_core.sh",
+                        "use_sudo": true,
+                        "fail_on_error": false
+                    }
+                ]
+            }
+        },
+        "historian_setup_hmi": {
+            "linux": {
+                "steps": [
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/Microservices/bin/unix",
+                        "cmd": "sudo chmod 755 *"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/Microservices/bin/unix",
+                        "cmd": "dos2unix *.sh"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/Microservices/bin/unix",
+                        "cmd": "./StopServices_hmi.sh",
+                        "fail_on_error": false
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "mkdir -p /home/ppc/SPARK_PPC/data/backup/primary"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "mkdir -p /home/ppc/SPARK_PPC/data/backup/secondary"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "mkdir -p /home/ppc/SPARK_PPC/data/analog/"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "mkdir -p /home/ppc/SPARK_PPC/data/discrete/"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/data/",
+                        "cmd": "sudo chmod 755 -R *"
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/historian-filetransfer/conf",
+                        "files": [
+                            "historianfiletransfer.properties"
+                        ],
+                        "line": [
+                            "local.polling.folders=C:/Work/Documentations/Initiatives/test/ExistingFiles",
+                            "primary.remote.host.name=primary",
+                            "destination.primary.remote.host=192.168.98.199",
+                            "destination.primary.remote.user=Administrator",
+                            "destination.primary.remote.password=LnTdesPTD@2600c",
+                            "destination.primary.remote.folder=../../temp/",
+                            "local.primary.backup.folder=C:/Work/Documentations/Initiatives/test/ExistingFiles/primary/",
+                            "secondary.remote.host.name=secondary",
+                            "destination.secondary.remote.host=192.168.98.202",
+                            "destination.secondary.remote.user=Administrator",
+                            "destination.secondary.remote.password=LnTdesPTD@2600c",
+                            "destination.secondary.remote.folder=../../temp/",
+                            "local.secondary.backup.folder=C:/Work/Documentations/Initiatives/test/ExistingFiles/secondary/",
+                            "health.check.channel=test"
+                        ],
+                        "replaced_line": [
+                            "local.polling.folders=/home/ppc/SPARK_PPC/data/analog/,/home/ppc/SPARK_PPC/data/discrete/",
+                            "primary.remote.host.name=Historian1",
+                            "destination.primary.remote.host={{Historian1-IP}}",
+                            "destination.primary.remote.user=Historian1-user",
+                            "destination.primary.remote.password={{Historian1-password}}",
+                            "destination.primary.remote.folder=/home/ppc/data/analog/primary",
+                            "local.primary.backup.folder=/home/ppc/SPARK_PPC/data/backup/primary",
+                            "secondary.remote.host.name=Historian2",
+                            "destination.secondary.remote.host={{Historian2-IP}}",
+                            "destination.secondary.remote.user={{Historian2-user}}",
+                            "destination.secondary.remote.password={{Historian2-password}}",
+                            "destination.secondary.remote.folder=/home/ppc/data/analog/secondary",
+                            "local.secondary.backup.folder=/home/ppc/SPARK_PPC/data/backup/secondary",
+                            "health.check.channel=Historian_DeviceHealth"
+                        ]
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/discretedataprocessor/config",
+                        "files": [
+                            "discretedataprocessor.properties"
+                        ],
+                        "line": [
+                            "raw.folder=C:\\PDC\\microservices\\AnalogDataProcessor\\data\\configured\\raw\\"
+                        ],
+                        "replaced_line": [
+                            "raw.folder=/home/ppc/SPARK_PPC/data/discrete/"
+                        ]
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/analogdataprocessor/config",
+                        "files": [
+                            "analogdataprocessor.properties"
+                        ],
+                        "line": [
+                            "raw.folder=C:\\PDC\\microservices\\AnalogDataProcessor\\data\\configured\\raw\\"
+                        ],
+                        "replaced_line": [
+                            "raw.folder=/home/ppc/SPARK_PPC/data/analog/"
+                        ]
+                    },
+                    {
+                        "step": "modify_json",
+                        "path": "/home/ppc/SPARK_PPC/adapters/icmp-adapter/config/icmpassetconfig.json",
+                        "key": "networkDevice[0].ipTags",
+                        "value": [
+                            {
+                                "name": "Historian1",
+                                "ip": "{{Historian1-IP}}",
+                                "port": "",
+                                "description": "",
+                                "gateway": "N",
+                                "enabled": "Y",
+                                "reportingzone": "Historian"
+                            },
+                            {
+                                "name": "Historian2",
+                                "ip": "{{Historian2-IP}}",
+                                "port": "",
+                                "description": "",
+                                "gateway": "N",
+                                "enabled": "Y",
+                                "reportingzone": "Historian"
+                            }
+                        ]
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/Microservices/bin/unix",
+                        "cmd": "./StartServices_hmi.sh"
+                    }
+                ]
+            },
+            "windows": {
+                "steps": [
+                    {
+                        "step": "env_change",
+                        "env_var": "PPC_MICROSERVICES_HOME",
+                        "env_path": "C:\\SPARK_PPC\\Microservices"
+                    },
+                    {
+                        "step": "append_config",
+                        "base_var": "PPC_MICROSERVICES_HOME",
+                        "relative_path": "lib/analogdataprocessor/config/analogdataprocessor.properties",
+                        "updates": {
+                            "raw.folder": "C:\\SPARK_PPC\\data\\analog"
+                        },
+                        "kv_style": "preserve"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "(Get-Content 'C:\\SPARK_PPC\\Microservices\\lib\\analogdataprocessor\\config\\analogdataprocessor.properties') -replace '^db\\.updated\\.model=.*','db.updated.model=true' -replace '^raw\\.aggregate=.*','raw.aggregate=true' | Set-Content 'C:\\SPARK_PPC\\Microservices\\lib\\analogdataprocessor\\config\\analogdataprocessor.properties'"
+                    },
+                    {
+                        "step": "append_config",
+                        "base_var": "PPC_MICROSERVICES_HOME",
+                        "relative_path": "lib/discretedataprocessor/config/discretedataprocessor.properties",
+                        "updates": {
+                            "raw.folder": "C:\\SPARK_PPC\\data\\discrete"
+                        },
+                        "kv_style": "preserve"
+                    },
+                    {
+                        "step": "append_config",
+                        "base_var": "PPC_MICROSERVICES_HOME",
+                        "relative_path": "lib/historian-filetransfer/config/historianfiletransfer.properties",
+                        "updates": {
+                            "raw.folder": "C:\\SPARK_PPC\\data\\analog"
+                        },
+                        "kv_style": "preserve"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "(Get-Content 'C:\\SPARK_PPC\\Microservices\\lib\\discretedataprocessor\\config\\discretedataprocessor.properties') -replace '^db\\.updated\\.model=.*','db.updated.model=true' -replace '^raw\\.aggregate=.*','raw.aggregate=true' | Set-Content 'C:\\SPARK_PPC\\Microservices\\lib\\discretedataprocessor\\config\\discretedataprocessor.properties'"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "$xmlPath = 'C:\\SPARK_PPC\\Microservices\\win-services_hmi\\analogdataprocessor.xml'; $exePath = 'C:\\SPARK_PPC\\Microservices\\bin\\win\\microservice.exe'; $alreadyRunning = Get-CimInstance Win32_Process | Where-Object { $_.Name -ieq 'microservice.exe' -and $_.CommandLine -match [regex]::Escape($xmlPath) }; if ($alreadyRunning) { Write-Host 'analogdataprocessor is already running, skipping.' } elseif ((Test-Path $exePath) -and (Test-Path $xmlPath)) { Start-Process $exePath -ArgumentList \"start $xmlPath\" -NoNewWindow; Write-Host 'analogdataprocessor started.' } else { Write-Host 'Executable or XML not found, skipping.' }"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "$xmlPath = 'C:\\SPARK_PPC\\Microservices\\win-services_hmi\\discretedataprocessor.xml'; $exePath = 'C:\\SPARK_PPC\\Microservices\\bin\\win\\microservice.exe'; $alreadyRunning = Get-CimInstance Win32_Process | Where-Object { $_.Name -ieq 'microservice.exe' -and $_.CommandLine -match [regex]::Escape($xmlPath) }; if ($alreadyRunning) { Write-Host 'discretedataprocessor already running, skipping.' } elseif ((Test-Path $exePath) -and (Test-Path $xmlPath)) { Start-Process $exePath -ArgumentList \"start $xmlPath\" -NoNewWindow; Write-Host 'discretedataprocessor started.' } else { Write-Host 'Executable or XML not found, skipping.' }"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "$xmlPath = 'C:\\SPARK_PPC\\Microservices\\win-services_hmi\\historian-filetransfer.xml'; $exePath = 'C:\\SPARK_PPC\\Microservices\\bin\\win\\microservice.exe'; $alreadyRunning = Get-CimInstance Win32_Process | Where-Object { $_.Name -ieq 'microservice.exe' -and $_.CommandLine -match [regex]::Escape($xmlPath) }; if ($alreadyRunning) { Write-Host 'historian-filetransfer already running, skipping.' } elseif ((Test-Path $exePath) -and (Test-Path $xmlPath)) { Start-Process $exePath -ArgumentList \"start $xmlPath\" -NoNewWindow; Write-Host 'historian-filetransfer started.' } else { Write-Host 'Executable or XML not found, skipping.' }"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "[System.Environment]::SetEnvironmentVariable('PPC_ADAPTER_HOME', 'C:\\SPARK_PPC\\adapters', 'Machine'); $env:PPC_ADAPTER_HOME='C:\\SPARK_PPC\\adapters'; Write-Host 'PPC_ADAPTER_HOME environment variable set successfully.'"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "New-Item -ItemType Directory -Path 'C:\\SPARK_PPC\\data\\analog' -Force | Out-Null; New-Item -ItemType Directory -Path 'C:\\SPARK_PPC\\data\\discrete' -Force | Out-Null"
+                    }
+                ]
+            }
+        },
+        "historian_setup": {
+            "linux": {
+                "steps": [
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/",
+                        "cmd": "mkdir -p SPARK_PPC/Microservices/lib"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "mkdir -p /home/ppc/data/analog/primary"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "mkdir -p /home/ppc/data/analog/secondary"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/",
+                        "cmd": "sudo chown -R 755 SPARK_PPC"
+                    },
+                    {
+                        "step": "modify_files",
+                        "src": "/home/ppc/SPARK_PPC/Microservices/lib/archive-fileprocess/config/",
+                        "files": [
+                            "archival_fps.properties"
+                        ],
+                        "line": [
+                            "archive.file.path=C:/data_files/data/"
+                        ],
+                        "replaced_line": [
+                            "archive.file.path=/home/ppc/data/analog/primary"
+                        ]
+                    },
+                    {
+                        "step": "copy_folder",
+                        "source": "/home/ppc/SPARK_PPC/Microservices/lib/archive-fileprocess",
+                        "destination": "/home/ppc/SPARK_PPC/Microservices/lib/"
+                    },
+                    {
+                        "step": "copy_folder",
+                        "source": "/home/ppc/SPARK_PPC/Microservices/unixservices_hmi/archive-fileprocess.service",
+                        "destination": "/home/ppc/SPARK_PPC"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "path": "/home/ppc/SPARK_PPC/",
+                        "cmd": "sudo cp archive-fileprocess.service /etc/systemd/system/"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo systemctl daemon-reload"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "cmd": "sudo systemctl start archive-fileprocess.service"
+                    }
+                ]
+            },
+            "windows": {
+                "steps": [
+                    {
+                        "step": "remote_copy",
+                        "source": "build_files/PPC_build/SPARK_PPC",
+                        "destination": "C:/NGInstaller_Staging/SPARK_PPC"
+                    },
+                    {
+                        "step": "move_folder",
+                        "source": "C:/NGInstaller_Staging/SPARK_PPC",
+                        "destination": "C:/SPARK_PPC"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "[System.Environment]::SetEnvironmentVariable('JAVA_HOME', 'C:\\Program Files\\Java\\jdk-17', 'Machine'); [System.Environment]::SetEnvironmentVariable('PPC_MICROSERVICES_HOME', 'C:\\SPARK_PPC\\Microservices\\lib', 'Machine'); $env:JAVA_HOME='C:\\Program Files\\Java\\jdk-17'; $env:PPC_MICROSERVICES_HOME='C:\\SPARK_PPC\\Microservices\\lib'; Write-Host 'JAVA_HOME and PPC_MICROSERVICES_HOME configured successfully.'"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "$serviceName = 'lntds-archive-fileprocess'; $xmlPath = 'C:\\SPARK_PPC\\Microservices\\win-services\\archive-fileprocess.xml'; $exePath = 'C:\\SPARK_PPC\\Microservices\\bin\\win\\microservice.exe'; if ((Test-Path $exePath) -and (Test-Path $xmlPath)) { $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue; if (-not $service) { & $exePath install $xmlPath; Write-Host 'archive-fileprocess installed.'; Start-Sleep -Seconds 2 }; $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue; if ($service.Status -ne 'Running') { & $exePath start $xmlPath; Write-Host 'archive-fileprocess started.' } else { Write-Host 'archive-fileprocess already running, skipping.' } } else { Write-Host 'Executable or XML not found, skipping.' }"
+                    },
+                    {
+                        "step": "run_cmd",
+                        "shell_type": "powershell",
+                        "cmd": "New-Item -ItemType Directory -Path 'C:\\archival\\data' -Force | Out-Null; New-Item -ItemType Directory -Path 'C:\\archival\\data_processed\\processed' -Force | Out-Null; New-Item -ItemType Directory -Path 'C:\\archival\\data_processed\\unprocessed' -Force | Out-Null"
+                    }
+                ]
+            }
+        },
+        "revert_back": {
+            "linux": {},
+            "windows": {
+                "steps": [
+                    {}
+                ]
+            }
+        }
+    },
+    "product": {
+        "name": "PPC",
+        "version": "v4.5.0"
+    },
+    "bundles": {
+        "PPC": {
+            "Linux": {
+                "HMI": [
+                    "jdk",
+                    "openssh",
+                    "python",
+                    "dos2unix",
+                    "SPARK_PPC",
+                    "redis",
+                    "kafka",
+                    "zookeeper",
+                    "tomcat",
+                    "postgresql",
+                    "liquibase",
+                    "HMI_config"
+                ],
+                "CORE_RTE": [
+                    "jdk",
+                    "python",
+                    "redis",
+                    "core_config"
+                ],
+                "HISTORIAN": [
+                    "jdk",
+                    "liquibase",
+                    "postgresql",
+                    "historian_setup"
+                ],
+                "HISTORIAN_MASTER": [
+                    "jdk",
+                    "SPARK_PPC",
+                    "redis",
+                    "dos2unix",
+                    "kafka",
+                    "zookeeper",
+                    "tomcat",
+                    "postgresql",
+                    "liquibase",
+                    "HMI_config",
+                    "UIStart",
+                    "runppc",
+                    "historian_setup_hmi"
+                ]
+            },
+            "Windows": {
+                "HMI": [
+                    "python",
+                    "jdk",
+                    "redis",
+                    "kafka",
+                    "zookeeper",
+                    "tomcat",
+                    "liquibase",
+                    "postgresql",
+                    "openssh",
+                    "SPARK_PPC",
+                    "HMI_config"
+                ],
+                "CORE_RTE": [
+                    "python",
+                    "jdk",
+                    "redis",
+                    "core_config"
+                ],
+                "HISTORIAN": [
+                    "jdk",
+                    "liquibase",
+                    "postgresql",
+                    "historian_setup"
+                ],
+                "HISTORIAN_MASTER": [
+                    "python",
+                    "jdk",
+                    "redis",
+                    "kafka",
+                    "zookeeper",
+                    "tomcat",
+                    "liquibase",
+                    "postgresql",
+                    "openssh",
+                    "SPARK_PPC",
+                    "HMI_config",
+                    "historian_setup_hmi"
+                ]
+            }
+        }
+    },
+    "license_content": "NOTICE\n=======\n\nThis PPC includes the efforts of open-source software adhering to the following license terms. The aforementioned open-source components are used as-is and have not been modified. \n\n1. Apache License, Version 2.0\n2. BSD and BSD 3-Clause Licence\n3. CDDL Licence, Version 1.1 \n4. EDL Licence, Version 1.0\n5. EPL Licence, Version 1.0 & 2.0 \n6. GPL Licence, Version 2.0 & 3.0\n7. JSON Licence\n8. LGPL Licence, Version 2.1\n9. MIT Licence\n\n\n### Apache License, Version 2.0\nThis PPC includes open-source software components licensed under the Apache License, Version 2.0.\nYou may obtain a copy of the Apache License at:\n\thttp://www.apache.org/licenses/LICENSE-2.0\n\nDisclaimer:\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions\nand limitations under the License.\n\nCopyright Notices:\nAll included Apache-licensed components retain their original copyright notices.\n\n--- \n\n### BSD and BSD 3-Clause Licence\nThis product includes open-source software components licensed under the BSD and BSD 3-Clause License.\nThe full licence text is available at:\n\thttps://opensource.org/license/bsd-3-clause\n\nDisclaimer:\nTHIS SOFTWARE IS PROVIDED \"AS IS,\" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.\n\n--- \n\n### CDDL License, Version 1.1\nYou may obtain a copy of the license at:\n\thttps://opensource.org/licenses/CDDL-1.1\n\n--- \n\n### EDL License, Version 1.0\nYou may obtain a copy of the license at:\n\thttps://www.eclipse.org/org/documents/edl-v10.php\n\n--- \n\n### EPL License, Version 1.0 & 2.0\nYou may obtain copies of the licenses at:\n\tVersion 1.0: https://www.eclipse.org/legal/epl-v10.html\n\tVersion 2.0: https://www.eclipse.org/legal/epl-2.0/\n\n--- \n\n### GPL License, Version 2.0 & 3.0\nYou may obtain copies of the licenses at:\n\tVersion 2.0: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html\n\tVersion 3.0: https://www.gnu.org/licenses/gpl-3.0.html\n\n--- \n\n### JSON License\nYou may obtain a copy of the license at:\n\thttps://opensource.org/licenses/JSON\n\n--- \n\n### LGPL License, Version 2.1\nYou may obtain a copy of the license at:\n\thttps://www.gnu.org/licenses/old-licenses/lgpl-2.1.html\n\n--- \n\n### MIT License\nYou may obtain a copy of the license at:\n\thttps://opensource.org/licenses/MIT\n\n--- \n\n### Spire.XLS License\nYou may obtain a copy of the license at:\n\thttps://www.e-iceblue.com/License-agreement.html\n\n--- \n\n### Redistribution and Acknowledgments\nAll third-party components retain their original \u00c3\u201a\u00c2\u00a9copyright.\n",
+    "dbstring": [
+        "ppc"
+    ],
+    "machines": [
+        {
+            "role": "HMI",
+            "ip": "10.1.107.118",
+            "username": "Administrator",
+            "password": "Welcome@123",
+            "bundles": [
+                "python",
+                "jdk",
+                "redis",
+                "kafka",
+                "zookeeper",
+                "tomcat",
+                "liquibase",
+                "postgresql",
+                "openssh",
+                "SPARK_PPC",
+                "HMI_config"
+            ],
+            "dbname": "ppc"
+        },
+        {
+            "role": "CORE_RTE",
+            "ip": "10.1.107.20",
+            "username": "ppc",
+            "password": "ubuntu18",
+            "bundles": [
+                "python",
+                "jdk",
+                "redis",
+                "kafka",
+                "zookeeper",
+                "tomcat",
+                "core_config"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,434 @@
+/* ===== Welcome screen ===== */
+
+QLabel#welcomeHeading {
+    color: white;
+    font-family: Segoe UI;
+    font-size: 14pt;
+    font-weight: bold;
+}
+
+QLabel#welcomeDescription {
+    color: #cccccc;
+    font-family: Segoe UI;
+    font-size: 10pt;
+    margin-top: 10px;
+}
+
+
+/* ===== License screen ===== */
+QLabel#licenseHeading {
+    color: white;
+    font-family: Segoe UI;
+    font-size: 14pt;
+    font-weight: bold;
+}
+
+/* ===== License Text ===== */
+QTextEdit#licenseText {
+    background-color: #0a1924;
+    color: #cccccc;
+    border: 1px solid #1D2951;
+    padding: 8px;
+    font-family: Segoe UI;
+    font-size: 9pt;
+}
+
+/* ===== Scrollbars for License Text ===== */
+QTextEdit#licenseText QScrollBar:vertical {
+    background: #0a1924;
+    width: 12px;
+    margin: 0px;
+}
+
+QTextEdit#licenseText QScrollBar::handle:vertical {
+    background: #1D2951;
+    min-height: 20px;
+    border-radius: 4px;
+}
+
+QTextEdit#licenseText QScrollBar::handle:vertical:hover {
+    background: #273469;
+}
+
+QTextEdit#licenseText QScrollBar::add-line:vertical,
+QTextEdit#licenseText QScrollBar::sub-line:vertical {
+    background: #1D2951;
+    border: none;
+    height: 14px;
+    subcontrol-origin: margin;
+}
+
+QTextEdit#licenseText QScrollBar::sub-line:vertical {
+    subcontrol-position: top;
+    background: #1D2951;
+}
+
+QTextEdit#licenseText QScrollBar::add-line:vertical {
+    subcontrol-position: bottom;
+    background: #1D2951;
+}
+
+
+
+/* Select installation type screen */
+SelectInstallationPage, QWidget {
+    background-color: #0a1924;
+    color: #d0d0d0;
+}
+
+/* Installation Title */
+QLabel#installationTitle {
+    color: white;
+    font-family: "Segoe UI";
+    font-size: 13pt;
+    font-weight: bold;
+}
+
+/* Radio buttons text color & font size */
+QRadioButton#defaultRadio,
+QRadioButton#completeRadio,
+QRadioButton#customRadio {
+    color: white;
+    font-size: 10pt;
+}
+
+/* Mandatory label */
+QLabel#mandatoryLabel {
+    color: white;
+    font-size: 10pt;
+    font-weight: normal;
+}
+
+/* QCheckBoxes for service list and bottom checkboxes */
+QCheckBox {
+    color: white;
+    font-size: 9pt;
+    background-color: transparent;
+    border: none;
+    padding: 3px 6px;
+}
+
+/* Checkbox hover effect */
+QCheckBox:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* ScrollArea styles */
+QScrollArea {
+    background-color: #0a1924;
+    border: 1px solid #d3d3d3;
+    border-radius: 0px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+QScrollArea > QWidget > QWidget {
+    background-color: #0a1924;
+    border: none;
+}
+
+/* Protocol sub-options checkboxes smaller font */
+QCheckBox#proto_iec104,
+QCheckBox#proto_iec6180,
+QCheckBox#proto_iec61850,
+QCheckBox#proto_modbus {
+    font-size: 8pt;
+    color: white;
+}
+
+/* RadioButton and CheckBox indicators (the boxes themselves) */
+QRadioButton::indicator,
+QCheckBox::indicator {
+    width: 16px;
+    height: 16px;
+    background-color: rgba(30, 30, 30, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+/* Checked state for QCheckBox: white tick on colored background */
+QCheckBox::indicator:checked {
+    background-color: rgba(50, 80, 120, 0.8);
+    image: url("images/tick.png");
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+
+
+/* RadioButton checked look */
+QRadioButton::indicator:checked {
+    background-color: rgba(50, 80, 120, 0.8);
+}
+
+/* Hover effect on indicators */
+QRadioButton::indicator:hover,
+QCheckBox::indicator:hover {
+    background-color: rgba(80, 80, 100, 0.8);
+}
+
+/* ===== MachineConfigScreen  ===== */
+
+MachineConfigScreen {
+    background-color: #0a1924;
+    color: white;
+    font-family: "Times New Roman";
+}
+
+#MachineConfigScreen QLabel {
+    font-size: 13px;
+    font-weight: normal;
+    color: white;
+}
+
+MachineConfigScreen QLineEdit,
+MachineConfigScreen QLineEdit#ipField,
+MachineConfigScreen QLineEdit#credentialField {
+    border: 1px solid #444;
+    padding: 4px;
+    color: white;
+    background-color: #1D2951;
+    font-family:"Courier New", monospace;
+    font-size: 10pt;
+}
+
+MachineConfigScreen QPushButton {
+    border: 1px solid #666;
+    background-color: #27427a;
+    color: white;
+    padding: 0px;
+    font-size: 18px;
+}
+
+MachineConfigScreen QPushButton:hover {
+    background-color: #3a559f;
+}
+
+MachineConfigScreen QFrame {
+    background-color: transparent;
+    border: none;
+}
+/* ---- Machine Config title ---- */
+MachineConfigScreen QLabel#machineConfigTitle {
+    font-size: 20px;
+    font-weight: bold;
+    font-family: Arial;
+}
+
+MachineConfigScreen QScrollArea QLineEdit {
+    background-color: #1D2951 ;
+    color:white;
+    font-family: "Courier New", monospace;
+    border: 1px solid #555;
+}
+
+/* ---- Machine Config Scroll Area ---- */
+MachineConfigScreen QScrollArea#machineConfigScroll {
+    background-color: transparent;
+    border: 1px solid #24314a;
+}
+
+/* optional but recommended: remove inner white background */
+MachineConfigScreen QScrollArea#machineConfigScroll QWidget {
+    background-color: transparent;
+}
+/* ---- Common Credential Checkbox ---- */
+MachineConfigScreen QCheckBox#commonCredentialCheck {
+    font-weight: normal;
+    font-size: 10pt;
+    color: white;
+}
+
+MachineConfigScreen QCheckBox#commonCredentialCheck::indicator {
+    width: 12px;
+    height: 12px;
+    border: 2px solid #D3D3D3;
+}
+
+MachineConfigScreen QCheckBox#commonCredentialCheck::indicator:checked {
+    background-color: #588BAE;
+}
+
+/* ---- Prereq Loading Dialog ---- */
+QDialog#prereqLoadingDialog {
+    background-color: #0A192F;
+}
+
+QDialog#prereqLoadingDialog QLabel {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+QDialog#prereqLoadingDialog QTextEdit {
+    background-color: #000000;
+    color: #ffffff;              
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 12px;
+    border: 1px solid #1D2951;
+    padding: 6px;
+}
+
+QDialog#prereqLoadingDialog QProgressBar {
+    height: 18px;
+    border: 1px solid #cfd8dc;
+    border-radius: 9px;
+    text-align: center;
+    background-color: #ffffff;
+    color: #ffffff;
+}
+
+QDialog#prereqLoadingDialog QProgressBar::chunk {
+    background-color: #4caf50;
+    border-radius: 9px;
+}
+/* Wizard Buttons */
+QPushButton#wizardButton {
+    background-color: #1D2951;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 14px;
+}
+
+QPushButton#wizardButton:hover {
+    background-color: #273469;
+}
+/* Prerequisite Check MessageBox styling */
+QMessageBox#prereqMessageBox {
+    background-color: #0a192f;
+}
+
+QMessageBox#prereqMessageBox QLabel {
+    color: white;
+    font-size: 13px;
+}
+
+QMessageBox#prereqMessageBox QPushButton {
+    color: white;
+    background-color: #444444;
+    border: 1px solid #666666;
+    padding: 6px 12px;
+    border-radius: 4px;
+}
+
+QMessageBox#prereqMessageBox QPushButton:hover {
+    background-color: #555555;
+}
+/* Prerequisite Error MessageBox styling */
+QMessageBox#prereqErrorMessageBox {
+    background-color: #0a192f;
+}
+
+QMessageBox#prereqErrorMessageBox QLabel {
+    color: white;
+    font-size: 13px;
+}
+
+QMessageBox#prereqErrorMessageBox QPushButton {
+    color: white;
+    background-color: #444444;
+    border: 1px solid #666666;
+    padding: 6px 12px;
+    border-radius: 4px;
+}
+
+QMessageBox#prereqErrorMessageBox QPushButton:hover {
+    background-color: #555555;
+}
+QLabel#loadingTitle {
+    color: white;
+    font-size: 16pt;
+    font-weight: bold;
+    qproperty-alignment: 'AlignCenter';  
+}
+
+QProgressBar#loadingProgressBar {
+    border: 1px solid white;
+    border-radius: 4px;
+    text-align: center;
+    background-color: #161e3a;
+    height: 8px; 
+    color: white;
+}
+
+QProgressBar#loadingProgressBar::chunk {
+    background-color: #333D4C;
+    width: 6px;
+    margin: 1px;
+    border-radius: 2px;
+}
+QTextEdit#logViewer {
+    background-color: #000000;
+    color: #00FF00;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    border: 1px solid #1D2951;
+    padding: 6px;
+}
+QPushButton#finishButton, QPushButton#cancelButton {
+    background-color: #1D2951;
+    color: white;
+    border: 1px solid white;
+    border-radius: 6px;
+    padding: 6px;
+    font-weight: bold;
+    min-width: 120px;  
+}
+
+QPushButton#finishButton:hover, QPushButton#cancelButton:hover {
+    background-color: #3a559f;
+}
+
+/*  When complete */
+QProgressBar#loadingProgressBar[completed="true"]::chunk {
+    background-color: #4caf50;   /* green */
+    border-radius: 0px;
+    margin: 0px;
+}
+QPushButton#finishButton:disabled, QPushButton#cancelButton:disabled {
+    color: gray;
+    border: 1px solid gray;
+}
+QMessageBox#finishMessageBox {
+    background-color: #0a1924; 
+    color: white;
+    font-size: 14px;
+}
+
+QMessageBox#finishMessageBox QLabel {
+    color: white;
+    font-size: 14px;
+}
+
+QMessageBox#finishMessageBox QPushButton {
+    background-color: #444444;
+    color: white;
+    border-radius: 6px;
+    padding: 5px 12px;
+}
+
+QMessageBox#finishMessageBox QPushButton:hover {
+    background-color: #555555;
+}
+QMessageBox#cancelMessageBox {
+    background-color: #0a1924; 
+    color: white;
+    font-size: 14px;
+}
+
+QMessageBox#cancelMessageBox QLabel {
+    color: white;
+    font-size: 14px;
+}
+
+QPushButton#cancelYesButton, QPushButton#cancelNoButton {
+    background-color: #1D2951;
+    color: white;
+    border-radius: 6px;
+    padding: 5px 12px;
+}
+
+QPushButton#cancelYesButton:hover, QPushButton#cancelNoButton:hover {
+    background-color: #555555;
+}
